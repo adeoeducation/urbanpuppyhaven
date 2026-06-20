@@ -44,8 +44,8 @@ async function submit() {
 
       <form v-if="hasSupabaseConfig || isLocalAdminEnabled" class="admin-login__form" @submit.prevent="submit">
         <label class="admin__field">
-          <span>Email</span>
-          <input v-model="email" class="admin__input" type="email" autocomplete="email" required />
+          <span>Email or username</span>
+          <input v-model="email" class="admin__input" type="text" autocomplete="username" required />
         </label>
 
         <label class="admin__field">

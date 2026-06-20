@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { hasSupabaseConfig } from '../lib/supabaseClient.js'
 import { signInAdmin } from './adminCatalogApi.js'
+import { isLocalAdminEnabled } from '../services/catalog/localCatalogStore.js'
 
 const emit = defineEmits(['signed-in'])
 
@@ -11,7 +12,7 @@ const loading = ref(false)
 const error = ref('')
 
 async function submit() {
-  if (!hasSupabaseConfig) return
+  if (!hasSupabaseConfig && !isLocalAdminEnabled) return
   loading.value = true
   error.value = ''
   try {
@@ -33,11 +34,15 @@ async function submit() {
       <h1>Back office</h1>
       <p>Manage listings, images, prices, stock, and publishing for Urban Puppy Haven.</p>
 
-      <p v-if="!hasSupabaseConfig" class="admin__notice">
+      <p v-if="!hasSupabaseConfig && !isLocalAdminEnabled" class="admin__notice">
         Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.
       </p>
 
-      <form v-else class="admin-login__form" @submit.prevent="submit">
+      <p v-else-if="isLocalAdminEnabled && !hasSupabaseConfig" class="admin__notice">
+        Local development admin is enabled. Catalog edits are saved in this browser until Supabase is connected.
+      </p>
+
+      <form v-if="hasSupabaseConfig || isLocalAdminEnabled" class="admin-login__form" @submit.prevent="submit">
         <label class="admin__field">
           <span>Email</span>
           <input v-model="email" class="admin__input" type="email" autocomplete="email" required />

@@ -1,6 +1,7 @@
 import { products as staticProducts } from '../../data/atelier.js'
 import { products as staticLatestDropProducts } from '../../data/products.js'
 import { supabase } from '../../lib/supabaseClient.js'
+import { getLocalPublishedProducts, isLocalAdminEnabled } from './localCatalogStore.js'
 import { mapCatalogProducts } from './catalogMapper.js'
 
 const PRODUCT_SELECT = `
@@ -21,8 +22,10 @@ export function createCatalogRepository(deps = {}) {
   const client = deps.supabase === undefined ? supabase : deps.supabase
   const fallback = deps.staticProducts || staticProducts
   const latestFallback = deps.staticLatestDropProducts || staticLatestDropProducts
+  const localEnabled = deps.localAdminEnabled ?? (deps.supabase === undefined && isLocalAdminEnabled)
 
   async function fetchPublishedProducts() {
+    if (!client && localEnabled) return getLocalPublishedProducts()
     if (!client) return fallback
 
     const { data, error } = await client
@@ -41,6 +44,13 @@ export function createCatalogRepository(deps = {}) {
   }
 
   async function fetchLatestDropProducts(limit = 4) {
+    if (!client && localEnabled) {
+      const products = getLocalPublishedProducts()
+      const sorted = sortCatalog(products)
+      const featured = sorted.filter((item) => item.isFeatured)
+      const fill = sorted.filter((item) => !item.isFeatured)
+      return [...featured, ...fill].slice(0, limit)
+    }
     if (!client) return latestFallback.slice(0, limit)
 
     const products = await fetchPublishedProducts()

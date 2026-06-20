@@ -1,5 +1,15 @@
 import { supabase } from '../lib/supabaseClient.js'
 import { productFormToPayload } from './adminProductForm.js'
+import {
+  archiveLocalProduct,
+  deleteLocalProduct,
+  getLocalAdminSession,
+  isLocalAdminEnabled,
+  listLocalAdminProducts,
+  saveLocalProduct,
+  signInLocalAdmin,
+  signOutLocalAdmin
+} from '../services/catalog/localCatalogStore.js'
 
 const PRODUCT_SELECT = `
   *,
@@ -20,6 +30,7 @@ function throwIfError(result) {
 }
 
 export async function getSession() {
+  if (!supabase && isLocalAdminEnabled) return getLocalAdminSession()
   const client = requireSupabase()
   const { data, error } = await client.auth.getSession()
   if (error) throw error
@@ -27,6 +38,7 @@ export async function getSession() {
 }
 
 export async function signInAdmin(email, password) {
+  if (!supabase && isLocalAdminEnabled) return signInLocalAdmin(email, password)
   const client = requireSupabase()
   const { data, error } = await client.auth.signInWithPassword({ email, password })
   if (error) throw error
@@ -34,12 +46,17 @@ export async function signInAdmin(email, password) {
 }
 
 export async function signOutAdmin() {
+  if (!supabase && isLocalAdminEnabled) {
+    signOutLocalAdmin()
+    return
+  }
   const client = requireSupabase()
   const { error } = await client.auth.signOut()
   if (error) throw error
 }
 
 export async function listAdminProducts() {
+  if (!supabase && isLocalAdminEnabled) return listLocalAdminProducts()
   const client = requireSupabase()
   const { data, error } = await client
     .from('products')
@@ -51,8 +68,9 @@ export async function listAdminProducts() {
 }
 
 export async function saveProductForm(form) {
-  const client = requireSupabase()
   const payload = productFormToPayload(form)
+  if (!supabase && isLocalAdminEnabled) return saveLocalProduct(payload, form.id)
+  const client = requireSupabase()
   const id = form.id
 
   const productResult = id
@@ -81,16 +99,32 @@ export async function saveProductForm(form) {
 }
 
 export async function archiveProduct(productId) {
+  if (!supabase && isLocalAdminEnabled) {
+    archiveLocalProduct(productId)
+    return
+  }
   const client = requireSupabase()
   throwIfError(await client.from('products').update({ status: 'archived' }).eq('id', productId))
 }
 
 export async function deleteProduct(productId) {
+  if (!supabase && isLocalAdminEnabled) {
+    deleteLocalProduct(productId)
+    return
+  }
   const client = requireSupabase()
   throwIfError(await client.from('products').delete().eq('id', productId))
 }
 
 export async function uploadProductImage(productId, role, file) {
+  if (!supabase && isLocalAdminEnabled) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader()
+      reader.onload = () => resolve(reader.result)
+      reader.onerror = () => reject(new Error('Unable to read local image file.'))
+      reader.readAsDataURL(file)
+    })
+  }
   const client = requireSupabase()
   const ext = file.name.split('.').pop() || 'jpg'
   const safeRole = role === 'hover' ? 'hover' : 'primary'

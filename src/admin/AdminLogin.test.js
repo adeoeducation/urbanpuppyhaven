@@ -10,4 +10,10 @@ describe('AdminLogin', () => {
     expect(source).toContain('autocomplete="username"')
     expect(source).not.toContain('type="email"')
   })
+
+  it('offers a local-only admin sign in button when the fallback is configured', () => {
+    expect(source).toContain('continueLocalAdmin')
+    expect(source).toContain('localAdminConfig.username || localAdminConfig.email')
+    expect(source).toContain('Continue as local admin')
+  })
 })

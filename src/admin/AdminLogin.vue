@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import { hasSupabaseConfig } from '../lib/supabaseClient.js'
 import { signInAdmin } from './adminCatalogApi.js'
-import { isLocalAdminEnabled } from '../services/catalog/localCatalogStore.js'
+import { isLocalAdminEnabled, localAdminConfig } from '../services/catalog/localCatalogStore.js'
 
 const emit = defineEmits(['signed-in'])
 
@@ -17,6 +17,20 @@ async function submit() {
   error.value = ''
   try {
     const session = await signInAdmin(email.value, password.value)
+    emit('signed-in', session)
+  } catch (err) {
+    error.value = err.message || 'Unable to sign in.'
+  } finally {
+    loading.value = false
+  }
+}
+
+async function continueLocalAdmin() {
+  if (hasSupabaseConfig || !isLocalAdminEnabled) return
+  loading.value = true
+  error.value = ''
+  try {
+    const session = await signInAdmin(localAdminConfig.username || localAdminConfig.email, localAdminConfig.password)
     emit('signed-in', session)
   } catch (err) {
     error.value = err.message || 'Unable to sign in.'
@@ -57,6 +71,16 @@ async function submit() {
 
         <button class="admin__button admin__button--primary" type="submit" :disabled="loading">
           {{ loading ? 'Signing in...' : 'Sign in' }}
+        </button>
+
+        <button
+          v-if="isLocalAdminEnabled && !hasSupabaseConfig"
+          class="admin__button admin__button--ghost"
+          type="button"
+          :disabled="loading"
+          @click="continueLocalAdmin"
+        >
+          Continue as local admin
         </button>
       </form>
     </section>

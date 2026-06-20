@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { defineAsyncComponent, onMounted, onUnmounted, ref } from 'vue'
 import SiteHeader from './components/SiteHeader.vue'
 import AccordionCarousel from './components/AccordionCarousel.vue'
 import MarqueeStrip from './components/MarqueeStrip.vue'
@@ -14,6 +14,8 @@ import Newsletter from './components/Newsletter.vue'
 import SiteFooter from './components/SiteFooter.vue'
 import { theme } from './composables/useTheme.js'
 
+const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
+const AdminApp = defineAsyncComponent(() => import('./admin/AdminApp.vue'))
 const progress = ref(0)
 const sweep = ref(null)
 
@@ -116,6 +118,8 @@ function onSweep(e) {
 }
 
 onMounted(() => {
+  if (isAdmin) return
+
   splitTitles()
   attachTilts()
   window.addEventListener('mousemove', onMagnetic, { passive: true })
@@ -155,6 +159,9 @@ onUnmounted(() => {
 </script>
 
 <template>
+  <AdminApp v-if="isAdmin" />
+
+  <template v-else>
   <div class="progress" aria-hidden="true">
     <div class="progress__bar" :style="{ '--p': progress }"></div>
   </div>
@@ -183,4 +190,5 @@ onUnmounted(() => {
     <Newsletter />
   </main>
   <SiteFooter />
+  </template>
 </template>

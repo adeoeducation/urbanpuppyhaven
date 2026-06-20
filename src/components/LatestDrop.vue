@@ -1,5 +1,8 @@
 <script setup>
-import { products } from '../data/products.js'
+import { useCatalog } from '../composables/useCatalog.js'
+
+const catalog = useCatalog()
+const products = catalog.latestDropProducts
 </script>
 
 <template>

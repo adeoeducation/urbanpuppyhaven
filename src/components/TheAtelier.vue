@@ -4,10 +4,12 @@
 // hover detail panel · product drawer with size/color picker → bag.
 
 import { ref, reactive, computed, onMounted, onUnmounted, watch } from 'vue'
-import { products, sizes, categories, colorways, worlds, sortOptions } from '../data/atelier.js'
+import { sizes, categories, colorways, worlds, sortOptions } from '../services/catalog/constants.js'
 import { useBag } from '../composables/useBag.js'
+import { useCatalog } from '../composables/useCatalog.js'
 
 const bag = useBag()
+const catalog = useCatalog()
 
 const filters = reactive({
   species: 'all',
@@ -44,7 +46,7 @@ const activeCount = computed(() =>
 )
 
 const visible = computed(() => {
-  let list = products.filter((p) => {
+  let list = catalog.products.value.filter((p) => {
     if (filters.species !== 'all' && p.species !== filters.species && p.species !== 'both') return false
     if (filters.vibes.length && !filters.vibes.includes(p.vibe)) return false
     if (filters.categories.length && !filters.categories.includes(p.category)) return false

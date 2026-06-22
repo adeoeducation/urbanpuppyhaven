@@ -9,6 +9,18 @@ type CartLine = {
   qty?: number
 }
 
+type ShippingAddress = {
+  name: string
+  email: string
+  phone: string
+  line1: string
+  line2: string
+  city: string
+  state: string
+  postalCode: string
+  country: string
+}
+
 const stripeSecret = Deno.env.get('STRIPE_SECRET_KEY') || Deno.env.get('STRIPE_API_KEY') || ''
 const stripe = new Stripe(stripeSecret, { apiVersion: '2024-11-20' })
 
@@ -41,6 +53,56 @@ function normalizeCartLine(line: CartLine) {
   }
 }
 
+function clean(value: unknown, maxLength = 160) {
+  return String(value || '').trim().replace(/\s+/g, ' ').slice(0, maxLength)
+}
+
+function validEmail(email: string) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+}
+
+function normalizeShippingAddress(input: Record<string, unknown> = {}): ShippingAddress {
+  return {
+    name: clean(input.name),
+    email: clean(input.email, 254).toLowerCase(),
+    phone: clean(input.phone, 40),
+    line1: clean(input.line1),
+    line2: clean(input.line2),
+    city: clean(input.city, 120),
+    state: clean(input.state, 80).toUpperCase(),
+    postalCode: clean(input.postalCode || input.postal_code, 32).toUpperCase(),
+    country: clean(input.country, 2).toUpperCase()
+  }
+}
+
+function validateShippingAddress(input: unknown, countries: string[]) {
+  const address = normalizeShippingAddress(
+    input && typeof input === 'object' ? input as Record<string, unknown> : {}
+  )
+  if (!address.name || !address.email || !address.line1 || !address.city || !address.state || !address.postalCode || !address.country) {
+    return { address, error: 'Shipping address is required.' }
+  }
+  if (!validEmail(address.email)) return { address, error: 'Enter a valid shipping email address.' }
+  if (!countries.includes(address.country)) return { address, error: `We do not ship to ${address.country}.` }
+  return { address, error: '' }
+}
+
+function orderShippingDetails(address: ShippingAddress) {
+  return {
+    name: address.name,
+    email: address.email,
+    phone: address.phone || null,
+    address: {
+      line1: address.line1,
+      line2: address.line2 || null,
+      city: address.city,
+      state: address.state,
+      postal_code: address.postalCode,
+      country: address.country
+    }
+  }
+}
+
 function publicImage(url?: string) {
   if (!url) return []
   return /^https?:\/\//i.test(url) ? [url] : []
@@ -56,10 +118,13 @@ Deno.serve(async (request) => {
   const supabaseKey = serviceRoleKey()
   if (!supabaseUrl || !supabaseKey) return jsonResponse({ error: 'Supabase service credentials are not configured.' }, 500, origin)
 
-  const { guestId } = await request.json().catch(() => ({ guestId: '' }))
+  const { guestId, shippingAddress } = await request.json().catch(() => ({ guestId: '', shippingAddress: null }))
   if (!guestId || typeof guestId !== 'string' || guestId.length < 24 || guestId.length > 160) {
     return jsonResponse({ error: 'Invalid guest cart.' }, 400, origin)
   }
+  const shippingCountries = allowedCountries()
+  const shipping = validateShippingAddress(shippingAddress, shippingCountries)
+  if (shipping.error) return jsonResponse({ error: shipping.error }, 400, origin)
 
   const supabase = createClient(supabaseUrl, supabaseKey, {
     auth: { persistSession: false, autoRefreshToken: false }
@@ -140,6 +205,9 @@ Deno.serve(async (request) => {
     .from('orders')
     .insert({
       guest_token: guestId,
+      customer_email: shipping.address.email,
+      customer_name: shipping.address.name,
+      shipping_details: orderShippingDetails(shipping.address),
       currency: 'usd',
       subtotal_cents: subtotalCents,
       total_cents: subtotalCents,
@@ -169,8 +237,8 @@ Deno.serve(async (request) => {
       order_number: order.order_number,
       guest_id: guestId
     },
+    customer_email: shipping.address.email,
     billing_address_collection: 'auto',
-    shipping_address_collection: { allowed_countries: allowedCountries() },
     phone_number_collection: { enabled: true },
     allow_promotion_codes: true
   })

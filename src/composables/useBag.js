@@ -11,6 +11,10 @@ import {
   sanitizeCartItems,
   updateCartLineQty
 } from '../services/shop/guestCart.js'
+import {
+  emptyShippingAddress,
+  validateShippingAddress
+} from '../services/shop/shippingAddress.js'
 
 function getStorage() {
   return typeof window !== 'undefined' ? window.localStorage : null
@@ -40,6 +44,8 @@ const isOpen = ref(false)
 const syncing = ref(false)
 const checkoutLoading = ref(false)
 const checkoutError = ref('')
+const shippingAddress = ref(emptyShippingAddress())
+const shippingErrors = ref({})
 const ready = ref(false)
 
 let syncTimer = null
@@ -48,6 +54,7 @@ let hydrating = false
 const count = computed(() => items.value.reduce((sum, item) => sum + Number(item.qty || 1), 0))
 const subtotalCents = computed(() => cartSubtotalCents(items.value))
 const subtotal = computed(() => formatCents(subtotalCents.value))
+const shippingReady = computed(() => validateShippingAddress(shippingAddress.value).isValid)
 
 function persist() {
   if (storage && guestId && !storage.getItem(GUEST_ID_KEY)) {
@@ -99,6 +106,11 @@ watch(items, () => {
   if (!hydrating) scheduleSync()
 }, { deep: true })
 
+watch(shippingAddress, () => {
+  if (Object.keys(shippingErrors.value).length) shippingErrors.value = {}
+  if (checkoutError.value === 'Add shipping address to continue.') checkoutError.value = ''
+}, { deep: true })
+
 if (typeof window !== 'undefined') {
   window.setTimeout(hydrate, 0)
 }
@@ -140,10 +152,18 @@ async function checkout() {
     return null
   }
 
+  const shipping = validateShippingAddress(shippingAddress.value)
+  if (!shipping.isValid) {
+    shippingErrors.value = shipping.errors
+    checkoutError.value = 'Add shipping address to continue.'
+    return null
+  }
+  shippingAddress.value = shipping.address
+
   checkoutLoading.value = true
   try {
     await syncNow()
-    const session = await cartRepository.startCheckout(guestId)
+    const session = await cartRepository.startCheckout(guestId, shipping.address)
     window.location.assign(session.url)
     return session
   } catch (err) {
@@ -161,6 +181,9 @@ export function useBag() {
     count,
     subtotal,
     subtotalCents,
+    shippingAddress,
+    shippingErrors,
+    shippingReady,
     isOpen,
     syncing,
     checkoutLoading,

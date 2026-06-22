@@ -1,5 +1,6 @@
 import { supabase } from '../../lib/supabaseClient.js'
 import { sanitizeCartItems } from './guestCart.js'
+import { normalizeShippingAddress } from './shippingAddress.js'
 
 function throwIfError(result) {
   if (result?.error) throw result.error
@@ -23,12 +24,12 @@ export function createCartRepository({ supabase: client = supabase } = {}) {
     return sanitized
   }
 
-  async function startCheckout(guestId) {
+  async function startCheckout(guestId, shippingAddress) {
     if (!client) {
       throw new Error('Checkout needs Supabase and Stripe configuration.')
     }
     const result = throwIfError(await client.functions.invoke('create-checkout-session', {
-      body: { guestId }
+      body: { guestId, shippingAddress: normalizeShippingAddress(shippingAddress) }
     }))
     if (!result.data?.url) throw new Error('Stripe Checkout did not return a checkout URL.')
     return { url: result.data.url }

@@ -19,3 +19,16 @@ export function orderItemSummary(order) {
     })
     .join(', ')
 }
+
+export function orderShippingAddress(order) {
+  const address = order.shipping_details?.address || {}
+  const cityLine = [address.city, [address.state, address.postal_code || address.postalCode].filter(Boolean).join(' ')]
+    .filter(Boolean)
+    .join(', ')
+  return [
+    address.line1,
+    address.line2,
+    cityLine,
+    address.country
+  ].filter(Boolean).join(', ') || 'No shipping address'
+}

@@ -2,6 +2,7 @@
 import { onMounted, onUnmounted } from 'vue'
 import { useBag } from '../composables/useBag.js'
 import { colorways } from '../services/catalog/constants.js'
+import { SHIPPING_COUNTRIES } from '../services/shop/shippingAddress.js'
 
 const bag = useBag()
 
@@ -72,25 +73,120 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
               </li>
             </ul>
 
-            <footer class="bag-drawer__foot">
+            <form class="bag-drawer__foot" @submit.prevent="bag.checkout">
               <div class="bag-drawer__total">
                 <span>Subtotal</span>
                 <strong>${{ bag.subtotal.value }}</strong>
               </div>
 
+              <section class="bag-drawer__shipping" aria-label="Delivery address">
+                <div class="bag-drawer__section-head">
+                  <span>Delivery address</span>
+                  <small>Required before payment</small>
+                </div>
+
+                <label class="bag-drawer__field">
+                  <span>Full name</span>
+                  <input
+                    v-model="bag.shippingAddress.value.name"
+                    autocomplete="shipping name"
+                    :aria-invalid="Boolean(bag.shippingErrors.value.name)"
+                  />
+                  <small v-if="bag.shippingErrors.value.name">{{ bag.shippingErrors.value.name }}</small>
+                </label>
+
+                <label class="bag-drawer__field">
+                  <span>Email</span>
+                  <input
+                    v-model="bag.shippingAddress.value.email"
+                    type="email"
+                    autocomplete="email"
+                    :aria-invalid="Boolean(bag.shippingErrors.value.email)"
+                  />
+                  <small v-if="bag.shippingErrors.value.email">{{ bag.shippingErrors.value.email }}</small>
+                </label>
+
+                <label class="bag-drawer__field">
+                  <span>Phone</span>
+                  <input v-model="bag.shippingAddress.value.phone" autocomplete="tel" />
+                </label>
+
+                <label class="bag-drawer__field">
+                  <span>Street address</span>
+                  <input
+                    v-model="bag.shippingAddress.value.line1"
+                    autocomplete="shipping address-line1"
+                    :aria-invalid="Boolean(bag.shippingErrors.value.line1)"
+                  />
+                  <small v-if="bag.shippingErrors.value.line1">{{ bag.shippingErrors.value.line1 }}</small>
+                </label>
+
+                <label class="bag-drawer__field">
+                  <span>Apartment, suite, etc.</span>
+                  <input v-model="bag.shippingAddress.value.line2" autocomplete="shipping address-line2" />
+                </label>
+
+                <div class="bag-drawer__field-grid">
+                  <label class="bag-drawer__field">
+                    <span>City</span>
+                    <input
+                      v-model="bag.shippingAddress.value.city"
+                      autocomplete="shipping address-level2"
+                      :aria-invalid="Boolean(bag.shippingErrors.value.city)"
+                    />
+                    <small v-if="bag.shippingErrors.value.city">{{ bag.shippingErrors.value.city }}</small>
+                  </label>
+
+                  <label class="bag-drawer__field">
+                    <span>State</span>
+                    <input
+                      v-model="bag.shippingAddress.value.state"
+                      autocomplete="shipping address-level1"
+                      :aria-invalid="Boolean(bag.shippingErrors.value.state)"
+                    />
+                    <small v-if="bag.shippingErrors.value.state">{{ bag.shippingErrors.value.state }}</small>
+                  </label>
+                </div>
+
+                <div class="bag-drawer__field-grid">
+                  <label class="bag-drawer__field">
+                    <span>ZIP / Postal</span>
+                    <input
+                      v-model="bag.shippingAddress.value.postalCode"
+                      autocomplete="shipping postal-code"
+                      :aria-invalid="Boolean(bag.shippingErrors.value.postalCode)"
+                    />
+                    <small v-if="bag.shippingErrors.value.postalCode">{{ bag.shippingErrors.value.postalCode }}</small>
+                  </label>
+
+                  <label class="bag-drawer__field">
+                    <span>Country</span>
+                    <select
+                      v-model="bag.shippingAddress.value.country"
+                      autocomplete="shipping country"
+                      :aria-invalid="Boolean(bag.shippingErrors.value.country)"
+                    >
+                      <option v-for="country in SHIPPING_COUNTRIES" :key="country.code" :value="country.code">
+                        {{ country.name }}
+                      </option>
+                    </select>
+                    <small v-if="bag.shippingErrors.value.country">{{ bag.shippingErrors.value.country }}</small>
+                  </label>
+                </div>
+              </section>
+
               <p v-if="bag.checkoutError.value" class="bag-drawer__error">{{ bag.checkoutError.value }}</p>
 
               <button
                 class="bag-drawer__checkout"
-                type="button"
+                type="submit"
                 :disabled="bag.checkoutLoading.value"
-                @click="bag.checkout"
               >
-                {{ bag.checkoutLoading.value ? 'Opening Stripe...' : 'Checkout with Stripe' }}
+                {{ bag.checkoutLoading.value ? 'Opening Stripe...' : bag.shippingReady.value ? 'Checkout with Stripe' : 'Add shipping address' }}
               </button>
 
-              <p class="bag-drawer__fine">Shipping and payment details are handled securely at checkout.</p>
-            </footer>
+              <p class="bag-drawer__fine">Payment opens in Stripe after your delivery address is saved.</p>
+            </form>
           </div>
         </aside>
       </div>
@@ -207,13 +303,12 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 
 .bag-drawer__body {
   min-height: 0;
-  display: grid;
-  grid-template-rows: 1fr auto;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
 }
 
 .bag-drawer__items {
-  min-height: 0;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
 }
@@ -325,6 +420,78 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   background: var(--bg);
 }
 
+.bag-drawer__shipping {
+  display: grid;
+  gap: 0.65rem;
+  padding-block: 0.2rem;
+}
+
+.bag-drawer__section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding-top: 0.25rem;
+}
+
+.bag-drawer__section-head span {
+  font-family: var(--f-display);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.bag-drawer__section-head small,
+.bag-drawer__field span {
+  font-family: var(--f-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--t-3);
+}
+
+.bag-drawer__field,
+.bag-drawer__field-grid {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.bag-drawer__field-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0.55rem;
+}
+
+.bag-drawer__field input,
+.bag-drawer__field select {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: 0.7rem 0.75rem;
+  background: var(--bg-soft);
+  color: var(--t);
+  font: 0.86rem var(--f-body);
+  outline: none;
+  transition: border-color 0.25s, box-shadow 0.25s, background 0.25s;
+}
+
+.bag-drawer__field input:focus,
+.bag-drawer__field select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 14%, transparent);
+}
+
+.bag-drawer__field input[aria-invalid="true"],
+.bag-drawer__field select[aria-invalid="true"] {
+  border-color: var(--accent);
+}
+
+.bag-drawer__field > small {
+  color: var(--accent);
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
 .bag-drawer__total {
   display: flex;
   align-items: baseline;
@@ -408,6 +575,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   .bag-line__image {
     width: 72px;
     height: 92px;
+  }
+
+  .bag-drawer__field-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

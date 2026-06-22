@@ -4,6 +4,7 @@ Urban Puppy Haven now supports a no-login shopping flow:
 
 - Browser creates a random `uph-guest-id`; IP addresses are not used.
 - Bag lines are saved locally and synced to Supabase through guest cart RPCs.
+- Shoppers add a shipping address in the bag before Stripe Checkout opens.
 - Checkout is created by the `create-checkout-session` Supabase Edge Function.
 - Stripe webhooks update `orders` and clear paid guest carts.
 - Admin users can view orders from `/admin` under `Orders`.

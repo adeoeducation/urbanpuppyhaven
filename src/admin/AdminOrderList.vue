@@ -1,7 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { listAdminOrders } from './adminCatalogApi.js'
-import { formatOrderMoney, orderCustomer, orderItemSummary } from './adminOrderFormat.js'
+import { formatOrderMoney, orderCustomer, orderItemSummary, orderShippingAddress } from './adminOrderFormat.js'
 
 const orders = ref([])
 const loading = ref(true)
@@ -89,7 +89,10 @@ onMounted(load)
               <small class="admin-table__sub">{{ order.stripe_checkout_session_id || 'No Stripe session yet' }}</small>
             </td>
             <td>{{ orderCustomer(order) }}</td>
-            <td>{{ orderItemSummary(order) || 'No items' }}</td>
+            <td>
+              {{ orderItemSummary(order) || 'No items' }}
+              <small class="admin-table__sub">{{ orderShippingAddress(order) }}</small>
+            </td>
             <td class="admin__mono">{{ formatOrderMoney(order) }}</td>
             <td>
               <span :class="['admin-status', `admin-status--${order.payment_status}`]">{{ order.payment_status }}</span>

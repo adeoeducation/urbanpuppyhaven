@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatOrderMoney, orderCustomer, orderItemSummary } from './adminOrderFormat.js'
+import { formatOrderMoney, orderCustomer, orderItemSummary, orderShippingAddress } from './adminOrderFormat.js'
 
 describe('adminOrderFormat', () => {
   it('formats order totals from cents', () => {
@@ -18,5 +18,20 @@ describe('adminOrderFormat', () => {
         { name: 'Vest', quantity: 1, size: 'M', colorway_id: null }
       ]
     })).toBe('2x Puffer (S / ink), 1x Vest (M)')
+  })
+
+  it('formats the shipping address for fulfillment', () => {
+    expect(orderShippingAddress({
+      shipping_details: {
+        address: {
+          line1: '18 Puppy Lane',
+          line2: 'Apt 2',
+          city: 'New York',
+          state: 'NY',
+          postal_code: '10001',
+          country: 'US'
+        }
+      }
+    })).toBe('18 Puppy Lane, Apt 2, New York, NY 10001, US')
   })
 })

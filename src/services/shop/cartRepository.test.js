@@ -54,12 +54,23 @@ describe('cartRepository', () => {
   it('starts a Stripe Checkout session through the Supabase Edge Function', async () => {
     const client = supabaseWithRpc({ data: { items: [] }, error: null })
     const repo = createCartRepository({ supabase: client })
+    const shippingAddress = {
+      name: 'William Urban',
+      email: 'urbanpuppyhaven@gmail.com',
+      phone: '555-0101',
+      line1: '18 Puppy Lane',
+      line2: '',
+      city: 'New York',
+      state: 'NY',
+      postalCode: '10001',
+      country: 'US'
+    }
 
-    await expect(repo.startCheckout('guest-token-000000000000')).resolves.toEqual({
+    await expect(repo.startCheckout('guest-token-000000000000', shippingAddress)).resolves.toEqual({
       url: 'https://checkout.stripe.test/session'
     })
     expect(client.functions.invoke).toHaveBeenCalledWith('create-checkout-session', {
-      body: { guestId: 'guest-token-000000000000' }
+      body: { guestId: 'guest-token-000000000000', shippingAddress }
     })
   })
 })

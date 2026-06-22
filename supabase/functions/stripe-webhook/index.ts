@@ -54,19 +54,21 @@ Deno.serve(async (request) => {
     const session = checkoutSession(event)
     const orderId = session.metadata?.order_id || session.client_reference_id
     if (orderId) {
+      const paidUpdate: Record<string, unknown> = {
+        stripe_checkout_session_id: session.id,
+        stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+        payment_status: 'paid',
+        order_status: 'paid'
+      }
+      if (session.customer_details?.email) paidUpdate.customer_email = session.customer_details.email
+      if (session.customer_details?.name) paidUpdate.customer_name = session.customer_details.name
+      if (session.shipping_details) paidUpdate.shipping_details = session.shipping_details
+      if (typeof session.amount_subtotal === 'number') paidUpdate.subtotal_cents = session.amount_subtotal
+      if (typeof session.amount_total === 'number') paidUpdate.total_cents = session.amount_total
+
       const { data: order } = await supabase
         .from('orders')
-        .update({
-          stripe_checkout_session_id: session.id,
-          stripe_payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
-          customer_email: session.customer_details?.email || null,
-          customer_name: session.customer_details?.name || null,
-          shipping_details: session.shipping_details || null,
-          subtotal_cents: session.amount_subtotal || undefined,
-          total_cents: session.amount_total || undefined,
-          payment_status: 'paid',
-          order_status: 'paid'
-        })
+        .update(paidUpdate)
         .eq('id', orderId)
         .select('guest_token')
         .single()

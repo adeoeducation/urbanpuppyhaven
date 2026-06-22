@@ -1,55 +1,179 @@
-// Shared bag state. Header reads count; Atelier writes.
-// Persists per-tab so a soft reload doesn't drop the cart.
+import { computed, ref, watch } from 'vue'
+import { cartRepository } from '../services/shop/cartRepository.js'
+import {
+  CART_KEY,
+  GUEST_ID_KEY,
+  addCartLine,
+  cartSubtotalCents,
+  createGuestId,
+  formatCents,
+  removeCartLine,
+  sanitizeCartItems,
+  updateCartLineQty
+} from '../services/shop/guestCart.js'
 
-import { ref, computed, watch } from 'vue'
-
-const KEY = 'uph-bag'
-
-function load() {
-  if (typeof window === 'undefined') return []
-  try {
-    const raw = window.localStorage.getItem(KEY)
-    if (!raw) return []
-    const parsed = JSON.parse(raw)
-    return Array.isArray(parsed) ? parsed : []
-  } catch { return [] }
+function getStorage() {
+  return typeof window !== 'undefined' ? window.localStorage : null
 }
 
-const items = ref(load())
-
-watch(items, (v) => {
-  try { window.localStorage.setItem(KEY, JSON.stringify(v)) } catch {}
-}, { deep: true })
-
-const count = computed(() => items.value.reduce((s, x) => s + (x.qty || 1), 0))
-
-function add(product, opts = {}) {
-  const size = opts.size || (product.sizes && product.sizes[0]) || null
-  const color = opts.color || (product.colors && product.colors[0]) || null
-  // Merge with an existing identical line.
-  const existing = items.value.find(x => x.id === product.id && x.size === size && x.color === color)
-  if (existing) {
-    existing.qty = (existing.qty || 1) + 1
-  } else {
-    items.value.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      size,
-      color,
-      qty: 1,
-      addedAt: Date.now()
-    })
+function loadLocalItems(storage = getStorage()) {
+  if (!storage) return []
+  try {
+    const raw = storage.getItem(CART_KEY)
+    return sanitizeCartItems(raw ? JSON.parse(raw) : [])
+  } catch {
+    return []
   }
 }
 
-function remove(idx) {
-  if (idx >= 0 && idx < items.value.length) items.value.splice(idx, 1)
+function writeLocalItems(items, storage = getStorage()) {
+  if (!storage) return
+  try {
+    storage.setItem(CART_KEY, JSON.stringify(sanitizeCartItems(items)))
+  } catch {}
 }
 
-function clear() { items.value = [] }
+const storage = getStorage()
+const guestId = storage ? createGuestId(storage) : ''
+const items = ref(loadLocalItems(storage))
+const isOpen = ref(false)
+const syncing = ref(false)
+const checkoutLoading = ref(false)
+const checkoutError = ref('')
+const ready = ref(false)
+
+let syncTimer = null
+let hydrating = false
+
+const count = computed(() => items.value.reduce((sum, item) => sum + Number(item.qty || 1), 0))
+const subtotalCents = computed(() => cartSubtotalCents(items.value))
+const subtotal = computed(() => formatCents(subtotalCents.value))
+
+function persist() {
+  if (storage && guestId && !storage.getItem(GUEST_ID_KEY)) {
+    storage.setItem(GUEST_ID_KEY, guestId)
+  }
+  writeLocalItems(items.value, storage)
+}
+
+async function syncNow() {
+  if (!guestId) return []
+  syncing.value = true
+  try {
+    return await cartRepository.saveCart(guestId, items.value)
+  } catch (err) {
+    console.warn('[cart] Unable to sync guest cart.', err)
+    return items.value
+  } finally {
+    syncing.value = false
+  }
+}
+
+function scheduleSync() {
+  if (!guestId) return
+  window.clearTimeout(syncTimer)
+  syncTimer = window.setTimeout(syncNow, 350)
+}
+
+async function hydrate() {
+  if (!guestId || ready.value) return
+  hydrating = true
+  try {
+    const remoteItems = await cartRepository.fetchCart(guestId)
+    if (remoteItems.length) {
+      items.value = remoteItems
+      persist()
+    } else if (items.value.length) {
+      await syncNow()
+    }
+  } catch (err) {
+    console.warn('[cart] Using local guest cart.', err)
+  } finally {
+    hydrating = false
+    ready.value = true
+  }
+}
+
+watch(items, () => {
+  persist()
+  if (!hydrating) scheduleSync()
+}, { deep: true })
+
+if (typeof window !== 'undefined') {
+  window.setTimeout(hydrate, 0)
+}
+
+function open() {
+  isOpen.value = true
+}
+
+function close() {
+  isOpen.value = false
+}
+
+function add(product, opts = {}) {
+  items.value = addCartLine(items.value, product, opts)
+}
+
+function remove(lineIdOrIndex) {
+  if (typeof lineIdOrIndex === 'number') {
+    const line = items.value[lineIdOrIndex]
+    if (!line) return
+    items.value = removeCartLine(items.value, line.lineId)
+    return
+  }
+  items.value = removeCartLine(items.value, lineIdOrIndex)
+}
+
+function setQty(lineId, qty) {
+  items.value = updateCartLineQty(items.value, lineId, qty)
+}
+
+function clear() {
+  items.value = []
+}
+
+async function checkout() {
+  checkoutError.value = ''
+  if (!items.value.length) {
+    checkoutError.value = 'Your bag is empty.'
+    return null
+  }
+
+  checkoutLoading.value = true
+  try {
+    await syncNow()
+    const session = await cartRepository.startCheckout(guestId)
+    window.location.assign(session.url)
+    return session
+  } catch (err) {
+    checkoutError.value = err.message || 'Checkout is not available right now.'
+    return null
+  } finally {
+    checkoutLoading.value = false
+  }
+}
 
 export function useBag() {
-  return { items, count, add, remove, clear }
+  return {
+    guestId,
+    items,
+    count,
+    subtotal,
+    subtotalCents,
+    isOpen,
+    syncing,
+    checkoutLoading,
+    checkoutError,
+    ready,
+    open,
+    close,
+    add,
+    remove,
+    setQty,
+    clear,
+    checkout,
+    syncNow,
+    hydrate
+  }
 }

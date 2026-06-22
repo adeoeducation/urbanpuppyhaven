@@ -64,13 +64,13 @@ const isDark = computed(() => theme.value === 'dark')
           </span>
         </button>
 
-        <a href="#atelier" class="hdr__bag magnetic" :aria-label="`Bag (${bag.count.value} items)`">
+        <button type="button" class="hdr__bag magnetic" :aria-label="`Bag (${bag.count.value} items)`" @click="bag.open">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round">
             <path d="M5 8h14l-1.2 11.2A2 2 0 0 1 15.8 21H8.2a2 2 0 0 1-2-1.8L5 8Z"/>
             <path d="M9 8V6a3 3 0 0 1 6 0v2"/>
           </svg>
           <span class="hdr__bag-count" :class="{ 'is-on': bag.count.value > 0 }">{{ bag.count.value }}</span>
-        </a>
+        </button>
         <button class="hdr__burger" :aria-expanded="menuOpen" aria-label="Toggle menu" @click="menuOpen = !menuOpen">
           <span></span><span></span>
         </button>

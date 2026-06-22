@@ -17,6 +17,11 @@ const PRODUCT_SELECT = `
   product_colorways(colorway_id)
 `
 
+const ORDER_SELECT = `
+  *,
+  order_items(*)
+`
+
 function requireSupabase() {
   if (!supabase) {
     throw new Error('Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.')
@@ -62,6 +67,18 @@ export async function listAdminProducts() {
     .from('products')
     .select(PRODUCT_SELECT)
     .order('updated_at', { ascending: false })
+
+  if (error) throw error
+  return data || []
+}
+
+export async function listAdminOrders() {
+  if (!supabase && isLocalAdminEnabled) return []
+  const client = requireSupabase()
+  const { data, error } = await client
+    .from('orders')
+    .select(ORDER_SELECT)
+    .order('created_at', { ascending: false })
 
   if (error) throw error
   return data || []

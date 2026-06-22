@@ -12,6 +12,8 @@ import AuraFinancialPhysics from './components/AuraFinancialPhysics.vue'
 import PawparazziWall from './components/PawparazziWall.vue'
 import Newsletter from './components/Newsletter.vue'
 import SiteFooter from './components/SiteFooter.vue'
+import CartDrawer from './components/CartDrawer.vue'
+import CheckoutNotice from './components/CheckoutNotice.vue'
 import { theme } from './composables/useTheme.js'
 
 const isAdmin = typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')
@@ -189,6 +191,8 @@ onUnmounted(() => {
     <PawparazziWall />
     <Newsletter />
   </main>
+  <CheckoutNotice />
+  <CartDrawer />
   <SiteFooter />
   </template>
 </template>

@@ -284,6 +284,10 @@
   padding: 1rem;
 }
 
+.admin-list__controls--orders {
+  grid-template-columns: minmax(260px, 1fr) 220px;
+}
+
 .admin-table-wrap {
   overflow-x: auto;
 }
@@ -292,6 +296,10 @@
   width: 100%;
   border-collapse: collapse;
   min-width: 980px;
+}
+
+.admin-table--orders {
+  min-width: 1120px;
 }
 
 .admin-table th,
@@ -364,6 +372,15 @@
 .admin-table__empty {
   text-align: center;
   color: var(--t-3);
+}
+
+.admin-table__sub {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--t-3);
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  word-break: break-all;
 }
 
 .admin-editor {

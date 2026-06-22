@@ -5,6 +5,7 @@ import { getSession, signOutAdmin } from './adminCatalogApi.js'
 import AdminLogin from './AdminLogin.vue'
 import AdminProductEditor from './AdminProductEditor.vue'
 import AdminProductList from './AdminProductList.vue'
+import AdminOrderList from './AdminOrderList.vue'
 
 const session = ref(null)
 const loading = ref(true)
@@ -38,6 +39,11 @@ function returnToList() {
   reloadKey.value += 1
 }
 
+function showOrders() {
+  editing.value = null
+  view.value = 'orders'
+}
+
 async function logout() {
   await signOutAdmin()
   session.value = null
@@ -64,6 +70,7 @@ async function logout() {
 
         <nav class="admin__nav" aria-label="Admin">
           <button :class="{ 'is-on': view === 'list' }" type="button" @click="returnToList">Products</button>
+          <button :class="{ 'is-on': view === 'orders' }" type="button" @click="showOrders">Orders</button>
           <button type="button" @click="createProduct">New listing</button>
         </nav>
 
@@ -80,11 +87,12 @@ async function logout() {
           @edit="editProduct"
         />
         <AdminProductEditor
-          v-else
+          v-else-if="view === 'edit'"
           :product="editing"
           @cancel="returnToList"
           @saved="returnToList"
         />
+        <AdminOrderList v-else />
       </div>
     </div>
   </main>

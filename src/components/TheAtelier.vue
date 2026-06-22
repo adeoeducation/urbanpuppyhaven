@@ -74,7 +74,7 @@ const drawerAdded = ref(false)
 
 function openProduct(p) {
   open.value = p
-  drawerSize.value = p.sizes.find((s) => p.sizeStock[s] !== 'sold') || p.sizes[0]
+  drawerSize.value = null
   drawerColor.value = p.colors[0]
   drawerAdded.value = false
   document.body.style.overflow = 'hidden'
@@ -85,16 +85,9 @@ function closeDrawer() {
   document.body.style.overflow = ''
 }
 
-function quickAdd(p, e) {
+function chooseSize(p, e) {
   e?.stopPropagation()
-  const size = p.sizes.find((s) => p.sizeStock[s] !== 'sold') || p.sizes[0]
-  bag.add(p, { size, color: p.colors[0] })
-  // tiny visual confirmation
-  const t = e?.currentTarget
-  if (t) {
-    t.classList.add('is-added')
-    setTimeout(() => t.classList.remove('is-added'), 1200)
-  }
+  openProduct(p)
 }
 
 function addFromDrawer() {
@@ -334,9 +327,8 @@ watch(showMobileFilters, (v) => {
                   <span class="ap__material">{{ p.material }}</span>
                 </div>
 
-                <button class="ap__add" @click="quickAdd(p, $event)">
-                  <span class="ap__add-default">Quick add <span class="arr">→</span></span>
-                  <span class="ap__add-done">✓ added</span>
+                <button class="ap__add" @click="chooseSize(p, $event)">
+                  <span class="ap__add-default">Choose size <span class="arr">→</span></span>
                 </button>
               </div>
             </div>
@@ -375,7 +367,7 @@ watch(showMobileFilters, (v) => {
               <div class="dr__group">
                 <div class="dr__group-head">
                   <span class="dr__group-k">Size</span>
-                  <span class="dr__group-v">{{ drawerSize }}</span>
+                  <span class="dr__group-v">{{ drawerSize || 'Select one' }}</span>
                 </div>
                 <div class="dr__sz">
                   <button
@@ -418,9 +410,9 @@ watch(showMobileFilters, (v) => {
                 <div><span>Made for</span><strong>{{ open.species === 'both' ? 'Dogs & Cats' : open.species === 'dog' ? 'Dogs' : 'Cats' }}</strong></div>
               </div>
 
-              <button class="dr__add" :class="{ 'is-done': drawerAdded }" @click="addFromDrawer">
+              <button class="dr__add" :class="{ 'is-done': drawerAdded }" :disabled="!drawerSize" @click="addFromDrawer">
                 <span class="dr__add-default">
-                  Add to bag <span class="arr">→</span>
+                  {{ drawerSize ? 'Add to bag' : 'Select a size' }} <span class="arr">→</span>
                 </span>
                 <span class="dr__add-done">
                   ✓ In your bag
@@ -1257,7 +1249,11 @@ watch(showMobileFilters, (v) => {
   transition: background 0.45s, transform 0.5s var(--ease-spring);
   overflow: hidden;
 }
-.dr__add:hover { background: var(--accent); color: var(--t-on-accent); transform: translateY(-2px); }
+.dr__add:hover:not(:disabled) { background: var(--accent); color: var(--t-on-accent); transform: translateY(-2px); }
+.dr__add:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
 .dr__add .arr {
   font-family: var(--f-display);
   font-style: italic;

@@ -10,17 +10,17 @@ export const slides = [
     id: 'manifesto',
     chapter: 'I',
     eyebrow: 'Drop 001 — The Manifesto',
-    title: 'Already\nfamous.',
-    body: 'A wardrobe for the four-legged. Cut, draped, and finished in small numbered runs — never repeated.',
-    image: u('1583337130417-3346a1be7dee', 1600)
+    title: 'UPH Custom\nPet T-Shirts',
+    body: 'Personalised T-shirts for puppy people. Your dog, your design, your Tee.',
+    image: '/images/uph-custom-pet-tshirts.png'
   },
   {
     id: 'varsity',
     chapter: 'II',
     eyebrow: 'Capsule — Varsity Season',
-    title: 'Letterman\nfor little legends.',
+    title: 'Every shirt has a tail to tell',
     body: 'Tailored varsity silhouettes cut for tails and paws. Stadium-coded. Snow-day approved.',
-    image: u('1591769225440-811ad7d6eab3', 1600)
+    image: '/images/uph-tail-to-tell.png'
   },
   {
     id: 'frontrow',

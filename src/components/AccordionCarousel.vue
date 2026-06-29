@@ -739,6 +739,56 @@ function onVisibility() {
   height: 100%;
   object-fit: cover;
 }
+
+/* Drop 001 flat-lay — feather edges into the page so it reads seamless */
+.chapter:first-child .chapter__media {
+  aspect-ratio: 4 / 3;
+  height: auto;
+  max-height: clamp(360px, 70vh, 720px);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.chapter:first-child .chapter__media img {
+  -webkit-mask-image:
+    linear-gradient(to right, transparent 0, #000 13%, #000 87%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to right, transparent 0, #000 13%, #000 87%, transparent 100%),
+    linear-gradient(to bottom, transparent 0, #000 13%, #000 87%, transparent 100%);
+  mask-composite: intersect;
+}
+/* drop the grain layer so the light flat-lay stays clean */
+.chapter:first-child .chapter__media.media__noise::before {
+  display: none;
+}
+/* puppy-paw picture frame hugging the flat-lay edges */
+.chapter:first-child .chapter__media.media__veil::after {
+  --paw: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='%23B8924A'%3E%3Cellipse%20cx='50'%20cy='64'%20rx='23'%20ry='19'/%3E%3Cellipse%20cx='25'%20cy='44'%20rx='9'%20ry='12'/%3E%3Cellipse%20cx='42'%20cy='29'%20rx='9'%20ry='13'/%3E%3Cellipse%20cx='58'%20cy='29'%20rx='9'%20ry='13'/%3E%3Cellipse%20cx='75'%20cy='44'%20rx='9'%20ry='12'/%3E%3C/g%3E%3C/svg%3E");
+  background: none;
+  background-image: var(--paw), var(--paw), var(--paw), var(--paw);
+  background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+  background-position: top center, bottom center, left center, right center;
+  background-size: 28px 28px;
+  opacity: 0.9;
+  z-index: 4;
+}
+/* the corner numeral was white for dark photos — darken it for the light flat-lay */
+.chapter:first-child .chapter__num {
+  color: var(--t);
+  text-shadow: none;
+  opacity: 0.55;
+}
+
+/* chapter II — match the box to the 3:4 photo so the whole frame shows */
+.chapter:nth-child(2) .chapter__media {
+  aspect-ratio: 3 / 4;
+  width: auto;
+  height: clamp(340px, 72vh, 760px);
+  max-width: 100%;
+  justify-self: center;
+}
 .chapter__num {
   position: absolute;
   top: clamp(1rem, 2vw, 1.6rem);
@@ -777,6 +827,19 @@ function onVisibility() {
   letter-spacing: -0.025em;
   color: var(--t);
 }
+/* chapter II — gold paw prints flanking the tagline */
+.chapter:nth-child(2) .chapter__title::before,
+.chapter:nth-child(2) .chapter__title::after {
+  content: '';
+  display: inline-block;
+  width: 0.62em;
+  height: 0.62em;
+  vertical-align: 0.06em;
+  background: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20100%20100'%3E%3Cg%20fill='%23B8924A'%3E%3Cellipse%20cx='50'%20cy='64'%20rx='23'%20ry='19'/%3E%3Cellipse%20cx='25'%20cy='44'%20rx='9'%20ry='12'/%3E%3Cellipse%20cx='42'%20cy='29'%20rx='9'%20ry='13'/%3E%3Cellipse%20cx='58'%20cy='29'%20rx='9'%20ry='13'/%3E%3Cellipse%20cx='75'%20cy='44'%20rx='9'%20ry='12'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+}
+.chapter:nth-child(2) .chapter__title::before { margin-right: 0.34em; }
+.chapter:nth-child(2) .chapter__title::after { margin-left: 0.34em; }
+
 .chapter__title span:nth-child(even) {
   font-style: italic;
   font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;

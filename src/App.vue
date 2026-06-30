@@ -8,7 +8,6 @@ import LatestDrop from './components/LatestDrop.vue'
 import TheAtelier from './components/TheAtelier.vue'
 import Lookbook from './components/Lookbook.vue'
 import ComfortPromise from './components/ComfortPromise.vue'
-import AuraFinancialPhysics from './components/AuraFinancialPhysics.vue'
 import PawparazziWall from './components/PawparazziWall.vue'
 import Newsletter from './components/Newsletter.vue'
 import SiteFooter from './components/SiteFooter.vue'
@@ -120,7 +119,7 @@ onMounted(() => {
   attachTilts()
   window.addEventListener('mousemove', onMagnetic, { passive: true })
   window.addEventListener('scroll', onScroll, { passive: true })
-  window.addEventListener('aura:theme-sweep', onSweep)
+  window.addEventListener('uph:theme-sweep', onSweep)
 
   revealObserver = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
@@ -148,7 +147,7 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMagnetic)
   window.removeEventListener('scroll', onScroll)
-  window.removeEventListener('aura:theme-sweep', onSweep)
+  window.removeEventListener('uph:theme-sweep', onSweep)
   revealObserver?.disconnect()
   splitObserver?.disconnect()
 })
@@ -178,7 +177,6 @@ onUnmounted(() => {
     <TheAtelier />
     <Lookbook />
     <ComfortPromise />
-    <AuraFinancialPhysics />
     <PawparazziWall />
     <Newsletter />
   </main>

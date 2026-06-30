@@ -6,7 +6,6 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "test:aura": "node scripts/check-aura-physics.js",
     "preview": "vite preview --port 4173"
   },
   "dependencies": {

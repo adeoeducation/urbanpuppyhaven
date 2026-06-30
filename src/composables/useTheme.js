@@ -36,5 +36,5 @@ export function toggleTheme() {
     theme.value = next
     return
   }
-  window.dispatchEvent(new CustomEvent('aura:theme-sweep', { detail: { next } }))
+  window.dispatchEvent(new CustomEvent('uph:theme-sweep', { detail: { next } }))
 }

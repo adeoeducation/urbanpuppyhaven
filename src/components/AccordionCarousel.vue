@@ -1,5 +1,5 @@
 <script setup>
-// AuraHero — full-bleed cinematic photo carousel + scroll-pinned chapter storyboard.
+// Hero — full-bleed cinematic photo carousel + scroll-pinned chapter storyboard.
 // The hero's background IS the carousel — real photos, cross-dissolve, Ken Burns alive.
 // Filename preserved per the no-delete rule.
 
@@ -99,13 +99,13 @@ function onVisibility() {
 </script>
 
 <template>
-  <section id="top" class="aura" ref="heroEl">
+  <section id="top" class="hero" ref="heroEl">
     <!-- Full-bleed photo stage — the carousel IS the background -->
-    <div class="aura__stage" ref="stage">
+    <div class="hero__stage" ref="stage">
       <div
         v-for="(s, i) in heroSlides"
         :key="s.id"
-        class="aura__plate"
+        class="hero__plate"
         :class="{ 'is-active': i === active }"
         :style="{ '--pos': s.pos }"
       >
@@ -114,42 +114,42 @@ function onVisibility() {
     </div>
 
     <!-- Warm asymmetric veil for type legibility — strong on left, soft on right -->
-    <div class="aura__wash"></div>
-    <div class="aura__hood"></div>
+    <div class="hero__wash"></div>
+    <div class="hero__hood"></div>
 
     <!-- Foreground decoration runes -->
-    <div class="aura__deco aura__deco--l" ref="decoL" aria-hidden="true">
-      <span class="aura__mark">✦</span>
-      <span class="aura__vline"></span>
-      <span class="aura__rune">N°<br/>001</span>
+    <div class="hero__deco hero__deco--l" ref="decoL" aria-hidden="true">
+      <span class="hero__mark">✦</span>
+      <span class="hero__vline"></span>
+      <span class="hero__rune">N°<br/>001</span>
     </div>
-    <div class="aura__deco aura__deco--r" ref="decoR" aria-hidden="true">
-      <span class="aura__rune aura__rune--r">MMXXVI</span>
-      <span class="aura__vline"></span>
-      <span class="aura__mark aura__mark--r">⌖</span>
+    <div class="hero__deco hero__deco--r" ref="decoR" aria-hidden="true">
+      <span class="hero__rune hero__rune--r">MMXXVI</span>
+      <span class="hero__vline"></span>
+      <span class="hero__mark hero__mark--r">⌖</span>
     </div>
 
     <!-- HUD: type + meta over the photo -->
-    <div class="aura__hud" ref="hud">
-      <div class="container aura__inner">
-        <div class="aura__chip">
-          <span class="aura__chip-dot"></span>
+    <div class="hero__hud" ref="hud">
+      <div class="container hero__inner">
+        <div class="hero__chip">
+          <span class="hero__chip-dot"></span>
           <span>Drop 001 — Live now</span>
-          <span class="aura__chip-sep">/</span>
-          <span class="aura__chip-num">120 numbered pieces</span>
+          <span class="hero__chip-sep">/</span>
+          <span class="hero__chip-num">120 numbered pieces</span>
         </div>
 
-        <h1 class="aura__title">
-          <span class="aura__title-line" data-split>Where canine</span>
-          <span class="aura__title-line aura__title-line--ital" data-split>couture begins.</span>
+        <h1 class="hero__title">
+          <span class="hero__title-line" data-split>Where canine</span>
+          <span class="hero__title-line hero__title-line--ital" data-split>couture begins.</span>
         </h1>
 
-        <p class="aura__lede reveal" data-d="3">
+        <p class="hero__lede reveal" data-d="3">
           Cinematic wardrobe in numbered runs. Hand-finished hardware,
           vet-reviewed cuts, made for pets with motion.
         </p>
 
-        <div class="aura__cta reveal" data-d="4">
+        <div class="hero__cta reveal" data-d="4">
           <a href="#atelier" class="btn btn-primary magnetic">
             Shop the Atelier <span class="arr">→</span>
           </a>
@@ -158,45 +158,45 @@ function onVisibility() {
           </a>
         </div>
 
-        <div class="aura__meta reveal" data-d="5">
-          <span class="aura__meta-k">Volume</span>
-          <span class="aura__meta-v numeral">N°001</span>
-          <span class="aura__meta-rule"></span>
-          <span class="aura__meta-k">Edition</span>
-          <span class="aura__meta-v numeral">001 / 120</span>
-          <span class="aura__meta-rule"></span>
-          <span class="aura__meta-k">Studio</span>
-          <span class="aura__meta-v">Brooklyn · MMXXVI</span>
+        <div class="hero__meta reveal" data-d="5">
+          <span class="hero__meta-k">Volume</span>
+          <span class="hero__meta-v numeral">N°001</span>
+          <span class="hero__meta-rule"></span>
+          <span class="hero__meta-k">Edition</span>
+          <span class="hero__meta-v numeral">001 / 120</span>
+          <span class="hero__meta-rule"></span>
+          <span class="hero__meta-k">Studio</span>
+          <span class="hero__meta-v">Brooklyn · MMXXVI</span>
         </div>
       </div>
     </div>
 
     <!-- Carousel control rail (bottom-right) -->
-    <div class="aura__rail" @mouseenter="pause" @mouseleave="play">
-      <div class="aura__rail-caption">
-        <span class="aura__rail-sigil">{{ activeSlide.sigil }}</span>
-        <span class="aura__rail-text">{{ activeSlide.caption }}</span>
+    <div class="hero__rail" @mouseenter="pause" @mouseleave="play">
+      <div class="hero__rail-caption">
+        <span class="hero__rail-sigil">{{ activeSlide.sigil }}</span>
+        <span class="hero__rail-text">{{ activeSlide.caption }}</span>
       </div>
-      <div class="aura__dots" role="tablist" aria-label="Hero photos">
+      <div class="hero__dots" role="tablist" aria-label="Hero photos">
         <button
           v-for="(s, i) in heroSlides"
           :key="s.id + '-d'"
-          class="aura__dot"
+          class="hero__dot"
           :class="{ 'is-on': i === active }"
           :aria-selected="i === active"
           :aria-label="`Show photo ${i + 1}`"
           role="tab"
           @click="go(i)"
         >
-          <span class="aura__dot-fill" :style="{ animationDuration: ROTATE_MS + 'ms' }"></span>
+          <span class="hero__dot-fill" :style="{ animationDuration: ROTATE_MS + 'ms' }"></span>
         </button>
       </div>
     </div>
 
-    <div class="aura__scroll" aria-hidden="true">
-      <span class="aura__scroll-num">{{ String(active + 1).padStart(2, '0') }} / {{ String(heroSlides.length).padStart(2, '0') }}</span>
-      <span class="aura__scroll-line"></span>
-      <span class="aura__scroll-cap">Scroll to enter</span>
+    <div class="hero__scroll" aria-hidden="true">
+      <span class="hero__scroll-num">{{ String(active + 1).padStart(2, '0') }} / {{ String(heroSlides.length).padStart(2, '0') }}</span>
+      <span class="hero__scroll-line"></span>
+      <span class="hero__scroll-cap">Scroll to enter</span>
     </div>
   </section>
 
@@ -248,9 +248,9 @@ function onVisibility() {
 
 <style scoped>
 /* ============================================================
-   AURA HERO — full-bleed photo carousel
+   HERO — full-bleed photo carousel
    ============================================================ */
-.aura {
+.hero {
   position: relative;
   min-height: 100vh;
   min-height: 100svh;
@@ -265,7 +265,7 @@ function onVisibility() {
    Asymmetric overflow: more on the right so the visible subject
    shifts off the title area without stretching or exposing blank edges.
    Stage center ≈ 58% of viewport → subject lands right of the headline. */
-.aura__stage {
+.hero__stage {
   position: absolute;
   top: -6%;
   bottom: -6%;
@@ -278,19 +278,19 @@ function onVisibility() {
 @media (max-width: 900px) {
   /* On narrow screens the title sits over the whole photo anyway —
      return to a symmetric overflow so neither edge crowds. */
-  .aura__stage { left: -6%; right: -6%; }
+  .hero__stage { left: -6%; right: -6%; }
 }
-.aura__plate {
+.hero__plate {
   position: absolute;
   inset: 0;
   opacity: 0;
   transition: opacity 1.6s var(--ease-soft);
 }
-.aura__plate.is-active {
+.hero__plate.is-active {
   opacity: 1;
   z-index: 1;
 }
-.aura__plate img {
+.hero__plate img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -298,7 +298,7 @@ function onVisibility() {
   transform: scale(1.04);
   transition: transform 1.4s var(--ease-soft);
 }
-.aura__plate.is-active img {
+.hero__plate.is-active img {
   animation: kenburns 12s linear forwards;
 }
 @keyframes kenburns {
@@ -307,7 +307,7 @@ function onVisibility() {
 }
 
 /* --- veils for type legibility (theme-aware) --- */
-.aura__wash {
+.hero__wash {
   position: absolute;
   inset: 0;
   z-index: -2;
@@ -323,7 +323,7 @@ function onVisibility() {
     radial-gradient(50% 60% at 20% 0%, color-mix(in oklab, var(--accent-2) 28%, transparent) 0%, transparent 60%);
   transition: background 0.8s var(--ease-soft);
 }
-[data-theme="dark"] .aura__wash {
+[data-theme="dark"] .hero__wash {
   background:
     linear-gradient(95deg,
       color-mix(in oklab, var(--bg-deep) 88%, transparent) 0%,
@@ -335,7 +335,7 @@ function onVisibility() {
 }
 
 /* Soft hood at the bottom — fades photo into the page below */
-.aura__hood {
+.hero__hood {
   position: absolute;
   left: 0; right: 0; bottom: 0;
   height: 28vh;
@@ -346,7 +346,7 @@ function onVisibility() {
 }
 
 /* --- foreground decoration runes --- */
-.aura__deco {
+.hero__deco {
   position: absolute;
   z-index: 1;
   display: flex;
@@ -364,10 +364,10 @@ function onVisibility() {
   will-change: transform;
   transition: color 0.5s;
 }
-[data-theme="dark"] .aura__deco { color: var(--gold); }
-.aura__deco--l { top: 22%; left: clamp(0.5rem, 2.5vw, 2rem); }
-.aura__deco--r { bottom: 18%; right: clamp(0.5rem, 2.5vw, 2rem); }
-.aura__mark {
+[data-theme="dark"] .hero__deco { color: var(--gold); }
+.hero__deco--l { top: 22%; left: clamp(0.5rem, 2.5vw, 2rem); }
+.hero__deco--r { bottom: 18%; right: clamp(0.5rem, 2.5vw, 2rem); }
+.hero__mark {
   font-family: var(--f-display);
   font-size: 1.4rem;
   color: var(--accent);
@@ -376,23 +376,23 @@ function onVisibility() {
   filter: drop-shadow(0 4px 14px color-mix(in oklab, var(--accent) 60%, transparent));
   animation: rotateSlow 18s linear infinite;
 }
-.aura__mark--r { color: var(--gold); animation-direction: reverse; }
-.aura__vline {
+.hero__mark--r { color: var(--gold); animation-direction: reverse; }
+.hero__vline {
   width: 1px;
   height: 92px;
   background: linear-gradient(180deg, currentColor, transparent);
 }
-.aura__rune {
+.hero__rune {
   line-height: 1.05;
   color: var(--t);
   opacity: 0.85;
   font-size: 0.7rem;
 }
-.aura__rune--r { font-size: 0.62rem; }
+.hero__rune--r { font-size: 0.62rem; }
 @keyframes rotateSlow { to { transform: rotate(360deg); } }
 
 /* --- HUD type --- */
-.aura__hud {
+.hero__hud {
   position: relative;
   z-index: 3;
   min-height: calc(100vh - 84px);
@@ -402,15 +402,15 @@ function onVisibility() {
   padding: clamp(2rem, 4vw, 3rem) 0 clamp(6.5rem, 8vw, 8rem);
   will-change: transform;
 }
-.aura__inner { gap: 1.15rem; }
-.aura__inner {
+.hero__inner { gap: 1.15rem; }
+.hero__inner {
   display: flex;
   flex-direction: column;
   gap: 1.6rem;
   max-width: 100%;
 }
 
-.aura__chip {
+.hero__chip {
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
@@ -426,7 +426,7 @@ function onVisibility() {
   padding: 0.55rem 1rem;
   border-radius: 999px;
 }
-.aura__chip-dot {
+.hero__chip-dot {
   width: 6px; height: 6px;
   background: var(--accent);
   border-radius: 50%;
@@ -437,12 +437,12 @@ function onVisibility() {
   70% { box-shadow: 0 0 0 8px transparent; }
   100% { box-shadow: 0 0 0 0 transparent; }
 }
-.aura__chip-sep { color: var(--gold-2); opacity: 0.6; }
-[data-theme="dark"] .aura__chip-sep { color: var(--gold); }
-.aura__chip-num { color: var(--gold-2); }
-[data-theme="dark"] .aura__chip-num { color: var(--gold); }
+.hero__chip-sep { color: var(--gold-2); opacity: 0.6; }
+[data-theme="dark"] .hero__chip-sep { color: var(--gold); }
+.hero__chip-num { color: var(--gold-2); }
+[data-theme="dark"] .hero__chip-num { color: var(--gold); }
 
-.aura__title {
+.hero__title {
   font-family: var(--f-display);
   font-weight: 600;
   font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 0;
@@ -457,8 +457,8 @@ function onVisibility() {
   text-shadow: 0 6px 30px color-mix(in oklab, var(--bg) 30%, transparent);
   opacity: 0.8;
 }
-.aura__title-line { display: block; }
-.aura__title-line--ital {
+.hero__title-line { display: block; }
+.hero__title-line--ital {
   font-style: italic;
   font-variation-settings: 'opsz' 144, 'SOFT' 100, 'WONK' 1;
   color: var(--accent);
@@ -467,7 +467,7 @@ function onVisibility() {
   word-spacing: 0.2em;
 }
 
-.aura__lede {
+.hero__lede {
   font-family: var(--f-body);
   font-weight: 400;
   font-style: normal;
@@ -480,9 +480,9 @@ function onVisibility() {
   opacity: 0.85;
 }
 
-.aura__cta { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.6rem; }
+.hero__cta { display: flex; flex-wrap: wrap; gap: 0.85rem; margin-top: 0.6rem; }
 
-.aura__meta {
+.hero__meta {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -494,13 +494,13 @@ function onVisibility() {
   text-transform: uppercase;
   color: var(--t-mute);
 }
-.aura__meta-k { color: var(--gold-2); opacity: 0.85; }
-[data-theme="dark"] .aura__meta-k { color: var(--gold); }
-.aura__meta-v { color: var(--t); }
-.aura__meta-rule { width: 32px; height: 1px; background: var(--rule-2); }
+.hero__meta-k { color: var(--gold-2); opacity: 0.85; }
+[data-theme="dark"] .hero__meta-k { color: var(--gold); }
+.hero__meta-v { color: var(--t); }
+.hero__meta-rule { width: 32px; height: 1px; background: var(--rule-2); }
 
 /* --- carousel control rail (bottom-right) --- */
-.aura__rail {
+.hero__rail {
   position: absolute;
   bottom: clamp(2rem, 5vw, 3.5rem);
   right: clamp(2rem, 4vw, 3.5rem);
@@ -511,7 +511,7 @@ function onVisibility() {
   gap: 0.85rem;
   max-width: min(40ch, 50vw);
 }
-.aura__rail-caption {
+.hero__rail-caption {
   display: inline-flex;
   align-items: center;
   gap: 0.7rem;
@@ -526,7 +526,7 @@ function onVisibility() {
   letter-spacing: 0.18em;
   text-transform: uppercase;
 }
-.aura__rail-sigil {
+.hero__rail-sigil {
   font-family: var(--f-display);
   font-style: italic;
   font-variation-settings: 'opsz' 96, 'WONK' 1;
@@ -536,9 +536,9 @@ function onVisibility() {
   text-transform: none;
   line-height: 1;
 }
-.aura__rail-text { color: var(--t-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hero__rail-text { color: var(--t-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
-.aura__dots {
+.hero__dots {
   display: flex;
   gap: 0.45rem;
   background: color-mix(in oklab, var(--surface) 60%, transparent);
@@ -547,7 +547,7 @@ function onVisibility() {
   padding: 0.5rem 0.6rem;
   border-radius: 999px;
 }
-.aura__dot {
+.hero__dot {
   position: relative;
   width: 36px;
   height: 4px;
@@ -556,16 +556,16 @@ function onVisibility() {
   overflow: hidden;
   transition: width 0.5s var(--ease-luxe), background 0.4s;
 }
-.aura__dot:hover { background: color-mix(in oklab, var(--t) 40%, transparent); }
-.aura__dot.is-on { width: 56px; background: color-mix(in oklab, var(--t) 22%, transparent); }
-.aura__dot-fill {
+.hero__dot:hover { background: color-mix(in oklab, var(--t) 40%, transparent); }
+.hero__dot.is-on { width: 56px; background: color-mix(in oklab, var(--t) 22%, transparent); }
+.hero__dot-fill {
   position: absolute;
   inset: 0;
   width: 0;
   background: linear-gradient(90deg, var(--gold), var(--accent));
   transform-origin: left;
 }
-.aura__dot.is-on .aura__dot-fill {
+.hero__dot.is-on .hero__dot-fill {
   animation-name: dotFill;
   animation-timing-function: linear;
   animation-fill-mode: forwards;
@@ -577,7 +577,7 @@ function onVisibility() {
 }
 
 /* --- scroll cue (right edge, rotated) --- */
-.aura__scroll {
+.hero__scroll {
   position: absolute;
   right: var(--pad-x);
   top: 50%;
@@ -594,9 +594,9 @@ function onVisibility() {
   color: var(--gold-2);
   white-space: nowrap;
 }
-[data-theme="dark"] .aura__scroll { color: var(--gold); }
-.aura__scroll-num { color: var(--accent); }
-.aura__scroll-line {
+[data-theme="dark"] .hero__scroll { color: var(--gold); }
+.hero__scroll-num { color: var(--accent); }
+.hero__scroll-line {
   display: inline-block;
   width: 90px;
   height: 1px;
@@ -604,7 +604,7 @@ function onVisibility() {
   position: relative;
   overflow: hidden;
 }
-.aura__scroll-line::after {
+.hero__scroll-line::after {
   content: '';
   position: absolute;
   inset: 0;
@@ -618,21 +618,21 @@ function onVisibility() {
 }
 
 @media (max-width: 1100px) {
-  .aura__scroll { display: none; }
+  .hero__scroll { display: none; }
 }
 @media (max-width: 900px) {
-  .aura__deco { display: none; }
-  .aura__title-line--ital { padding-left: 0; }
-  .aura__meta { gap: 0.6rem; font-size: 0.58rem; }
-  .aura__meta-rule { display: none; }
-  .aura__rail {
+  .hero__deco { display: none; }
+  .hero__title-line--ital { padding-left: 0; }
+  .hero__meta { gap: 0.6rem; font-size: 0.58rem; }
+  .hero__meta-rule { display: none; }
+  .hero__rail {
     left: var(--pad-x);
     right: var(--pad-x);
     bottom: 1.6rem;
     align-items: stretch;
   }
-  .aura__rail-text { max-width: 22ch; }
-  .aura__wash {
+  .hero__rail-text { max-width: 22ch; }
+  .hero__wash {
     /* On small screens the type sits over the photo wholly — tint everywhere */
     background:
       linear-gradient(180deg,
@@ -641,7 +641,7 @@ function onVisibility() {
         color-mix(in oklab, var(--bg) 38%, transparent) 70%,
         color-mix(in oklab, var(--bg) 70%, transparent) 100%);
   }
-  [data-theme="dark"] .aura__wash {
+  [data-theme="dark"] .hero__wash {
     background:
       linear-gradient(180deg,
         color-mix(in oklab, var(--bg-deep) 78%, transparent) 0%,

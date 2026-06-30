@@ -38,7 +38,6 @@ const isDark = computed(() => theme.value === 'dark')
         <a href="#vibes" @click="menuOpen = false"><span class="num">02</span>Worlds</a>
         <a href="#atelier" @click="menuOpen = false"><span class="num">03</span>Atelier</a>
         <a href="#lookbook" @click="menuOpen = false"><span class="num">04</span>Lookbook</a>
-        <a href="#aura-physics" @click="menuOpen = false"><span class="num">05</span>AURA</a>
       </nav>
 
       <div class="hdr__cta">

@@ -58,12 +58,16 @@ const year = new Date().getFullYear()
       </div>
     </div>
 
-    <div class="ftr__giant" aria-hidden="true">
-      <span>URBAN</span>
-      <span class="ftr__giant-dot">·</span>
-      <span class="italic">puppy</span>
-      <span class="ftr__giant-dot">·</span>
-      <span>HAVEN</span>
+    <div class="ftr__giant">
+      <span aria-hidden="true">URBAN</span>
+      <span class="ftr__giant-dot" aria-hidden="true">·</span>
+      <span class="italic" aria-hidden="true">puppy</span>
+      <a
+        href="/admin"
+        class="ftr__giant-dot ftr__giant-dot--key"
+        aria-label="Staff access"
+      >·</a>
+      <span aria-hidden="true">HAVEN</span>
     </div>
 
     <div class="container ftr__bottom">
@@ -218,6 +222,13 @@ const year = new Date().getFullYear()
   vertical-align: middle;
 }
 [data-theme="dark"] .ftr__giant-dot { color: var(--gold); -webkit-text-fill-color: var(--gold); }
+/* The second dot is a quiet staff door — visually identical, no link tells. */
+.ftr__giant-dot--key {
+  text-decoration: none;
+  cursor: inherit;
+  -webkit-text-fill-color: var(--gold-2);
+}
+[data-theme="dark"] .ftr__giant-dot--key { -webkit-text-fill-color: var(--gold); }
 
 .ftr__bottom {
   display: flex;
